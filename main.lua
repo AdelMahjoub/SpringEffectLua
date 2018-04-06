@@ -1,15 +1,35 @@
 local getParticle = require("particle")
 local utils = require("utils")
 
--- local utilsTest = require("test/utils")
-local particleTest = require("test/particle")
--- utilsTest()
--- particleTest()
-
-love.math.setRandomSeed(love.timer.getTime())
 local width = love.graphics.getWidth()
 local height = love.graphics.getHeight()
 
+-- Gravitation 
+-----------------------------------------------------------------------------
+-- local sun1 = getParticle(100, 200, 0, 0)
+-- sun1.mass = 30000000
+-- sun1.radius = 20
+
+-- local sun2 = getParticle(600, 300, 0, 0)
+-- sun2.mass = 78000000
+-- sun2.radius = 20
+
+-- local emitter = {
+--     x = 10,
+--     y = 10
+-- }
+
+-- local particles = {}
+-- local particlesCount = 100
+-- for i = 1, particlesCount do
+--     local p = getParticle(emitter.x, emitter.y, utils.randomRange(400, 402), math.pi / 2 * utils.randomRange(-0.1, 0.1))
+--     p.addGravitation(sun1)
+--     p.addGravitation(sun2)
+--     particles[#particles + 1] = p
+--     p.radius = 2
+-- end
+------------------------------------------------------------------------------
+-- Spring test
 local springPoint = {
     x = width / 2,
     y = height / 2
@@ -18,20 +38,15 @@ local springPoint2 = {
     x = utils.randomRange(0, width),
     y = utils.randomRange(0, height)
 }
-local k = 0.1
+local k = 160
 local springLength = 100
 
-local weight = getParticle(love.math.random() * width, love.math.random() * height, 50, love.math.random() * math.pi * 2, 0.5)
+local weight = getParticle(love.math.random() * width, love.math.random() * height, 100, love.math.random() * math.pi * 2, 20)
 weight.radius = 20
-weight.friction = 0.95
+weight.friction = 0.9
 weight.addSpring(springPoint, k, springLength)
 weight.addSpring(springPoint2, k, springLength)
-
-
--- Load event
-function love.load()
-    
-end
+-------------------------------------------------------------------------------
 
 -- Mouse press events
 function love.mousepressed(x, y, button, istouch)
@@ -43,8 +58,8 @@ end
 
 -- Mouse move events
 function love.mousemoved(x, y, dx, dy, istouch)
-   springPoint.x = x
-   springPoint.y = y
+    springPoint.x = x
+    springPoint.y = y
 end
 
 -- Update loop
@@ -53,8 +68,21 @@ function love.update(dt)
         return
     end
 
-    weight.update()
+    print(love.timer.getFPS())
 
+    -- Gravitation 
+    -- for i, p in ipairs(particles) do 
+    --     p.update(dt)
+    --     if p.x < 0 or p.x > width or p.y < 0 or p.y > height then
+    --         p.x = emitter.x
+    --         p.y = emitter.y
+    --         p.setSpeed(utils.randomRange(400, 402))
+    --         p.setHeading(math.pi / 2 * utils.randomRange(-0.1, 0.1))
+    --     end
+    -- end
+
+    -- Spring
+    weight.update(dt)
 end
 
 -- Render loop
@@ -70,6 +98,16 @@ function love.draw()
         return
     end
 
+    -- Gravitaion
+    -----------------------------------------------------------
+    -- for i, p in ipairs(particles) do 
+    --     love.graphics.circle("fill", p.x, p.y, p.radius)
+    -- end
+    -- love.graphics.circle("fill", sun1.x, sun1.y, sun1.radius)
+    -- love.graphics.circle("fill", sun2.x, sun2.y, sun2.radius)
+    ------------------------------------------------------------
+
+    -- Spring
     love.graphics.circle("fill", weight.x, weight.y, weight.radius)
     love.graphics.circle("fill", springPoint.x, springPoint.y, 5)
     love.graphics.circle("fill", springPoint2.x, springPoint2.y, 5)
